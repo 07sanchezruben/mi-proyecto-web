@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PubliCar - Conecta conductores con marcas</title>
+  <style>
+    :root {
+      --black: #000;
+      --gray-100: #f7f7f7;
+      --gray-200: #ededed;
+      --gray-300: #d6d6d6;
+      --text: #111;
+      --accent: #0a84ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #fff;
+      color: var(--text);
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: #000;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      z-index: 1000;
+    }
+
+    .topbar .logo {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .topbar nav {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      font-size: 15px;
+    }
+
+    .topbar nav a {
+      color: #fff;
+      opacity: 0.8;
+      transition: opacity 0.2s ease;
+    }
+
+    .topbar nav a:hover {
+      opacity: 1;
+    }
+
+    .topbar-right {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      position: relative;
+    }
+
+    .topbar-right .chip {
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    .topbar-right button,
+    .topbar-right a.btn {
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .topbar-right .btn-light {
+      background: #fff;
+      color: #000;
+    }
+
+    .topbar-right .btn-ghost {
+      background: transparent;
+      color: #fff;
+    }
+
+    .dropdown {
+      position: absolute;
+      top: 56px;
+      right: 0;
+      background: #fff;
+      color: #000;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+      padding: 16px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      width: 220px;
+      z-index: 999;
+    }
+
+    .dropdown button {
+      background: var(--gray-100);
+      border-radius: 12px;
+      padding: 10px;
+      text-align: left;
+      font-weight: 500;
+    }
+
+    .dropdown button:hover {
+      background: var(--gray-200);
+    }
+
+    .pill-nav {
+      position: sticky;
+      top: 64px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 12px 32px;
+      display: flex;
+      gap: 12px;
+      z-index: 900;
+    }
+
+    .pill-nav button {
+      background: var(--gray-100);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-weight: 600;
+      color: var(--text);
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .pill-nav button.active,
+    .pill-nav button:hover {
+      background: #000;
+      color: #fff;
+    }
+
+    .pill-nav button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    main {
+      padding: 120px 32px 64px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .tab {
+      display: none;
+      animation: fade 0.4s ease;
+    }
+
+    .tab.active {
+      display: block;
+    }
+
+    @keyframes fade {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 40px;
+      align-items: center;
+      margin-bottom: 64px;
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      margin: 0 0 16px;
+      letter-spacing: -0.01em;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #444;
+      line-height: 1.5;
+    }
+
+    .card-group {
+      display: grid;
+      gap: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .card p {
+      margin: 0;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .card button {
+      background: #000;
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 600;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+    }
+
+    .card.secondary button {
+      background: #fff;
+      color: #000;
+      border: 1px solid #000;
+    }
+
+    .card .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .suggestions {
+      margin-top: 80px;
+    }
+
+    .suggestions h2 {
+      font-size: 32px;
+      margin-bottom: 24px;
+    }
+
+    .suggestion-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+
+    .suggestion-card {
+      background: var(--gray-100);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .suggestion-card span {
+      font-size: 32px;
+    }
+
+    .suggestion-card button {
+      align-self: flex-start;
+      background: #000;
+      color: #fff;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-weight: 600;
+    }
+
+    form {
+      display: grid;
+      gap: 16px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    input,
+    select,
+    textarea {
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--gray-300);
+      background: #fff;
+      font-size: 15px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid #000;
+    }
+
+    .form-container {
+      max-width: 760px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 32px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .form-header {
+      margin-bottom: 24px;
+    }
+
+    .form-header h2 {
+      margin: 0 0 8px;
+      font-size: 32px;
+    }
+
+    .btn-primary {
+      background: #000;
+      color: #fff;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .error-message {
+      background: #ffe0e0;
+      color: #8f1a1a;
+      padding: 12px 16px;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .success-message {
+      background: #e0f7e9;
+      color: #0b7a40;
+      padding: 12px 16px;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .dashboard {
+      display: grid;
+      gap: 24px;
+    }
+
+    .dashboard-nav {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .dashboard-nav button {
+      padding: 10px 16px;
+      border-radius: 12px;
+      background: var(--gray-100);
+      border: 1px solid transparent;
+      font-weight: 600;
+    }
+
+    .dashboard-nav button.active {
+      background: #000;
+      color: #fff;
+    }
+
+    .dashboard-content {
+      display: grid;
+      gap: 24px;
+    }
+
+    .proposal-card,
+    .match-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      display: grid;
+      gap: 12px;
+    }
+
+    .proposal-card header,
+    .match-card header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .status {
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+    }
+
+    .status.pending {
+      background: rgba(250, 200, 70, 0.2);
+      color: #8a5a00;
+    }
+
+    .status.accepted {
+      background: rgba(42, 165, 89, 0.2);
+      color: #1d6f3f;
+    }
+
+    .status.rejected {
+      background: rgba(214, 61, 61, 0.2);
+      color: #7b1d1d;
+    }
+
+    .action-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .action-group button {
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-weight: 600;
+    }
+
+    .action-group .accept {
+      background: #000;
+      color: #fff;
+    }
+
+    .action-group .reject {
+      background: var(--gray-200);
+      color: #000;
+    }
+
+    .empty-state {
+      padding: 32px;
+      text-align: center;
+      border-radius: 24px;
+      background: var(--gray-100);
+      color: #555;
+    }
+
+    .illustration {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      background: linear-gradient(135deg, #fdf7f7, #f3f6ff);
+      border-radius: 32px;
+      overflow: hidden;
+    }
+
+    .illustration .sun {
+      position: absolute;
+      top: 40px;
+      right: 60px;
+      width: 80px;
+      height: 80px;
+      background: radial-gradient(circle at center, #ffe680, #ffcf33);
+      border-radius: 50%;
+      box-shadow: 0 0 40px rgba(255, 207, 51, 0.4);
+    }
+
+    .illustration .cloud {
+      position: absolute;
+      top: 60px;
+      left: 60px;
+      width: 140px;
+      height: 50px;
+      background: #fff;
+      border-radius: 50px;
+      box-shadow: 40px 0 0 #fff, 80px 0 0 #fff;
+    }
+
+    .illustration .road {
+      position: absolute;
+      bottom: 60px;
+      left: -10%;
+      width: 120%;
+      height: 120px;
+      background: linear-gradient(0deg, #1d1d1d, #2b2b2b);
+      border-radius: 60px;
+    }
+
+    .illustration .road:after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 5%;
+      width: 90%;
+      height: 6px;
+      background: repeating-linear-gradient(90deg, #fff 0 40px, transparent 40px 70px);
+      transform: translateY(-50%);
+    }
+
+    .illustration .car {
+      position: absolute;
+      bottom: 96px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 220px;
+      height: 90px;
+      background: #111;
+      border-radius: 30px 30px 26px 26px;
+      box-shadow: inset -10px -10px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .illustration .car:before {
+      content: "";
+      position: absolute;
+      top: -26px;
+      left: 18px;
+      width: 184px;
+      height: 50px;
+      background: #111;
+      border-radius: 24px 24px 8px 8px;
+      box-shadow: inset -8px -12px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .illustration .car-window {
+      position: absolute;
+      top: -18px;
+      left: 28px;
+      width: 164px;
+      height: 38px;
+      background: linear-gradient(135deg, #dfe8ff, #a6c0ff);
+      border-radius: 18px 18px 6px 6px;
+    }
+
+    .illustration .wheel {
+      position: absolute;
+      bottom: -18px;
+      width: 64px;
+      height: 64px;
+      background: #0d0d0d;
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 10px #1f1f1f;
+    }
+
+    .illustration .wheel:after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #c5c5c5;
+    }
+
+    .illustration .wheel.front {
+      right: 28px;
+    }
+
+    .illustration .wheel.back {
+      left: 28px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 768px) {
+      .topbar {
+        padding: 0 16px;
+      }
+      .pill-nav {
+        padding: 12px 16px;
+        flex-wrap: wrap;
+      }
+      main {
+        padding: 120px 16px 48px;
+      }
+      .hero h1 {
+        font-size: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="left">
+      <div class="logo">PubliCar</div>
+      <nav>
+        <a href="#">Viaja</a>
+        <a href="#">Earn</a>
+        <a href="#">Empresas</a>
+      </nav>
+    </div>
+    <div class="topbar-right">
+      <div class="chip">ES-ES</div>
+      <a href="#" class="btn btn-ghost" id="help-link">Ayuda</a>
+      <button class="btn btn-ghost" id="login-trigger">Inicia sesión</button>
+      <button class="btn btn-light" id="register-trigger">Registrarse</button>
+      <div class="dropdown" id="auth-dropdown">
+        <strong>¿Cómo quieres continuar?</strong>
+        <button data-action="login-driver">Iniciar sesión como conductor</button>
+        <button data-action="login-company">Iniciar sesión como empresa</button>
+        <button data-action="register-driver">Crear cuenta conductor</button>
+        <button data-action="register-company">Crear cuenta empresa</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="pill-nav">
+    <button class="pill active" data-target="home">Inicio</button>
+    <button class="pill" data-target="driver-area">Conductor</button>
+    <button class="pill" data-target="company-area">Empresa</button>
+    <button class="pill" data-target="matches" id="matches-pill" disabled>Emparejados</button>
+  </div>
+
+  <main>
+    <section class="tab active" id="home">
+      <div class="hero">
+        <div>
+          <h1>Solicita coches para tu marca o súmate como conductor</h1>
+          <p>PubliCar conecta conductores particulares con empresas que quieren activar campañas de publicidad exterior en vehículos. Gestiona tus campañas y propuestas desde una sola plataforma.</p>
+
+          <div class="card-group">
+            <div class="card">
+              <h3>Acceder como conductor</h3>
+              <p>Inscríbete y recibe campañas adaptadas a tu vehículo y a tu estilo de conducción. Gana dinero extra mientras conduces.</p>
+              <div class="actions">
+                <button data-action="login-driver">Iniciar sesión</button>
+                <button class="secondary" data-action="register-driver">Registrarse</button>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Acceder como empresa</h3>
+              <p>Lanza campañas hiperlocales con conductores reales. Controla zonas, categorías y presupuesto desde tu panel.</p>
+              <div class="actions">
+                <button data-action="login-company">Iniciar sesión</button>
+                <button class="secondary" data-action="register-company">Registrarse</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="illustration">
+          <div class="sun"></div>
+          <div class="cloud"></div>
+          <div class="road"></div>
+          <div class="car">
+            <div class="car-window"></div>
+            <div class="wheel back"></div>
+            <div class="wheel front"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="suggestions">
+        <h2>Sugerencias</h2>
+        <div class="suggestion-grid">
+          <div class="suggestion-card">
+            <span>🚗</span>
+            <h3>Conductores</h3>
+            <p>Gestiona tu perfil y consulta las propuestas activas que las marcas tienen para ti.</p>
+            <button data-action="goto-driver">Ver detalles</button>
+          </div>
+          <div class="suggestion-card">
+            <span>🏢</span>
+            <h3>Empresas</h3>
+            <p>Crea campañas personalizadas, encuentra el conductor ideal y controla tu presupuesto.</p>
+            <button data-action="goto-company">Ver detalles</button>
+          </div>
+          <div class="suggestion-card">
+            <span>📅</span>
+            <h3>Emparejamientos</h3>
+            <p>Revisa los matches generados y gestiona las propuestas entre empresas y conductores.</p>
+            <button data-action="goto-matches">Ver detalles</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="tab" id="driver-login">
+      <div class="form-container">
+        <div class="form-header">
+          <h2>Iniciar sesión como conductor</h2>
+          <p>Accede a tus propuestas y gestiona tu perfil en minutos.</p>
+        </div>
+        <div class="error-message" id="driver-login-error"></div>
+        <form id="driver-login-form">
+          <label>Usuario
+            <input type="text" name="username" required />
+          </label>
+          <label>Contraseña
+            <input type="password" name="password" required />
+          </label>
+          <button type="submit" class="btn-primary">Iniciar sesión</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="tab" id="driver-register">
+      <div class="form-container">
+        <div class="form-header">
+          <h2>Crear cuenta de conductor</h2>
+          <p>Cuéntanos sobre ti y tu vehículo para recibir campañas personalizadas.</p>
+        </div>
+        <div class="error-message" id="driver-register-error"></div>
+        <form id="driver-register-form">
+          <label>Nombre completo
+            <input type="text" name="name" required />
+          </label>
+          <label>DNI
+            <input type="text" name="dni" required />
+          </label>
+          <label>Email
+            <input type="email" name="email" required />
+          </label>
+          <label>Teléfono
+            <input type="tel" name="phone" required />
+          </label>
+          <label>Usuario
+            <input type="text" name="username" required />
+          </label>
+          <label>Contraseña
+            <input type="password" name="password" required />
+          </label>
+          <label>Ciudad
+            <input type="text" name="city" required />
+          </label>
+          <label>Zonas habituales (separadas por coma)
+            <input type="text" name="zones" required />
+          </label>
+          <label>Kilómetros aproximados por mes
+            <input type="number" name="kmPerMonth" required />
+          </label>
+          <label>Modelo de vehículo
+            <input type="text" name="vehicle" required />
+          </label>
+          <label>Tamaño de vinilado aceptado
+            <select name="wrapSize" required>
+              <option value="pequeno">Pequeño</option>
+              <option value="medio" selected>Medio</option>
+              <option value="completo">Completo</option>
+            </select>
+          </label>
+          <label>Categorías que aceptas (coma)
+            <input type="text" name="categories" required />
+          </label>
+          <label>Franja principal de conducción
+            <select name="drivingSlot" required>
+              <option value="manana">Mañanas</option>
+              <option value="tarde">Tardes</option>
+              <option value="noche">Noches</option>
+              <option value="any" selected>Cualquiera</option>
+            </select>
+          </label>
+          <button type="submit" class="btn-primary">Crear cuenta de conductor</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="tab" id="company-login">
+      <div class="form-container">
+        <div class="form-header">
+          <h2>Iniciar sesión como empresa</h2>
+          <p>Gestiona tus campañas y encuentra conductores ideales para tu marca.</p>
+        </div>
+        <div class="error-message" id="company-login-error"></div>
+        <form id="company-login-form">
+          <label>Usuario
+            <input type="text" name="username" required />
+          </label>
+          <label>Contraseña
+            <input type="password" name="password" required />
+          </label>
+          <button type="submit" class="btn-primary">Iniciar sesión</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="tab" id="company-register">
+      <div class="form-container">
+        <div class="form-header">
+          <h2>Crear cuenta de empresa</h2>
+          <p>Define tus objetivos de campaña y conecta con conductores afines.</p>
+        </div>
+        <div class="error-message" id="company-register-error"></div>
+        <form id="company-register-form">
+          <label>Nombre comercial / marca
+            <input type="text" name="brand" required />
+          </label>
+          <label>Razón social
+            <input type="text" name="companyName" required />
+          </label>
+          <label>NIF
+            <input type="text" name="nif" required />
+          </label>
+          <label>Dirección
+            <input type="text" name="address" required />
+          </label>
+          <label>Ciudad
+            <input type="text" name="city" required />
+          </label>
+          <label>Zonas objetivo (coma)
+            <input type="text" name="zones" required />
+          </label>
+          <label>Kilómetros mínimos al mes
+            <input type="number" name="minKmPerMonth" required />
+          </label>
+          <label>Tamaño de vinilado
+            <select name="wrapSize" required>
+              <option value="pequeno">Pequeño</option>
+              <option value="medio" selected>Medio</option>
+              <option value="completo">Completo</option>
+            </select>
+          </label>
+          <label>Categorías de campaña (coma)
+            <input type="text" name="categories" required />
+          </label>
+          <label>Franja horaria objetivo
+            <select name="targetSlot" required>
+              <option value="manana">Mañanas</option>
+              <option value="tarde">Tardes</option>
+              <option value="noche">Noches</option>
+              <option value="any" selected>Cualquiera</option>
+            </select>
+          </label>
+          <label>Presupuesto mensual (€)
+            <input type="number" name="budgetPerMonth" required />
+          </label>
+          <label>Duración de campaña (meses)
+            <select name="campaignDurationMonths" required>
+              <option value="1">1 mes</option>
+              <option value="3" selected>3 meses</option>
+              <option value="6">6 meses</option>
+            </select>
+          </label>
+          <label>Teléfono de contacto
+            <input type="tel" name="contactPhone" required />
+          </label>
+          <label>Email de contacto
+            <input type="email" name="contactEmail" required />
+          </label>
+          <label>Usuario
+            <input type="text" name="username" required />
+          </label>
+          <label>Contraseña
+            <input type="password" name="password" required />
+          </label>
+          <button type="submit" class="btn-primary">Crear cuenta de empresa</button>
+        </form>
+      </div>
+    </section>
+    <section class="tab" id="driver-dashboard">
+      <div class="dashboard">
+        <div class="dashboard-nav">
+          <button data-driver-view="profile" class="active">Perfil</button>
+          <button data-driver-view="proposals">Propuestas</button>
+        </div>
+        <div class="dashboard-content">
+          <div id="driver-profile-view" class="dashboard-view">
+            <div class="form-container">
+              <div class="form-header">
+                <h2>Tu perfil de conductor</h2>
+                <p>Actualiza tus datos para recibir mejores propuestas.</p>
+              </div>
+              <div class="success-message" id="driver-profile-success">Datos actualizados correctamente.</div>
+              <form id="driver-profile-form"></form>
+            </div>
+          </div>
+          <div id="driver-proposals-view" class="dashboard-view hidden">
+            <h2>Propuestas recibidas</h2>
+            <div id="driver-proposals-list" class="dashboard-stack"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab" id="company-dashboard">
+      <div class="dashboard">
+        <div class="dashboard-nav">
+          <button data-company-view="matches" class="active">Campañas</button>
+          <button data-company-view="profile">Perfil</button>
+        </div>
+        <div class="dashboard-content">
+          <div id="company-matches-view" class="dashboard-view">
+            <h2>Posibles emparejamientos</h2>
+            <p>Selecciona los conductores que encajan con tus campañas.</p>
+            <div id="company-matches-list" class="dashboard-stack"></div>
+          </div>
+          <div id="company-profile-view" class="dashboard-view hidden">
+            <div class="form-container">
+              <div class="form-header">
+                <h2>Datos de tu empresa</h2>
+                <p>Edita tus preferencias para mejorar las recomendaciones.</p>
+              </div>
+              <div class="success-message" id="company-profile-success">Datos actualizados correctamente.</div>
+              <form id="company-profile-form"></form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEYS = {
+      drivers: 'drivers',
+      companies: 'companies',
+      proposals: 'proposals',
+      session: 'session'
+    };
+
+    const defaultSession = { role: null, username: null };
+
+    function getData(key) {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    }
+
+    function setData(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function getSession() {
+      return getData(STORAGE_KEYS.session) || { ...defaultSession };
+    }
+
+    function setSession(session) {
+      setData(STORAGE_KEYS.session, session);
+    }
+
+    function ensureStorageSeed() {
+      const existingDrivers = getData(STORAGE_KEYS.drivers);
+      const existingCompanies = getData(STORAGE_KEYS.companies);
+      const existingProposals = getData(STORAGE_KEYS.proposals);
+
+      if (!existingDrivers) {
+        setData(STORAGE_KEYS.drivers, [
+          {
+            id: 'd1',
+            username: 'marta123',
+            password: 'demo',
+            name: 'Marta López',
+            dni: '12345678A',
+            email: 'marta@example.com',
+            phone: '600123123',
+            vehicle: 'Seat Ibiza 2016',
+            city: 'Barcelona',
+            zones: ['Eixample', 'Poblenou'],
+            kmPerMonth: 800,
+            wrapSize: 'medio',
+            categories: ['Restauración', 'Tecnología'],
+            drivingSlot: 'manana'
+          },
+          {
+            id: 'd2',
+            username: 'jorgeDrive',
+            password: 'demo',
+            name: 'Jorge Pérez',
+            dni: '87654321B',
+            email: 'jorge@example.com',
+            phone: '600555222',
+            vehicle: 'Toyota Prius 2018',
+            city: 'Madrid',
+            zones: ['Centro', 'Salamanca'],
+            kmPerMonth: 1000,
+            wrapSize: 'completo',
+            categories: ['Tecnología', 'Finanzas'],
+            drivingSlot: 'any'
+          }
+        ]);
+      }
+
+      if (!existingCompanies) {
+        setData(STORAGE_KEYS.companies, [
+          {
+            id: 'c1',
+            username: 'cafeatomico',
+            password: 'demo',
+            brand: 'Café Atómico',
+            companyName: 'Café Atómico SL',
+            nif: 'B12345678',
+            address: 'C/ Ejemplo 123',
+            city: 'Barcelona',
+            zones: ['Eixample', 'Gràcia'],
+            minKmPerMonth: 500,
+            wrapSize: 'medio',
+            categories: ['Restauración'],
+            targetSlot: 'any',
+            budgetPerMonth: 800,
+            campaignDurationMonths: 3,
+            contactEmail: 'hola@cafeatomico.com',
+            contactPhone: '933000000'
+          },
+          {
+            id: 'c2',
+            username: 'urbangym',
+            password: 'demo',
+            brand: 'Urban Gym',
+            companyName: 'Urban Wellness SA',
+            nif: 'B33445566',
+            address: 'Av. Salud 21',
+            city: 'Madrid',
+            zones: ['Centro', 'Chamartín'],
+            minKmPerMonth: 700,
+            wrapSize: 'completo',
+            categories: ['Deporte', 'Salud'],
+            targetSlot: 'tarde',
+            budgetPerMonth: 1200,
+            campaignDurationMonths: 6,
+            contactEmail: 'marketing@urbangym.com',
+            contactPhone: '914000000'
+          }
+        ]);
+      }
+
+      if (!existingProposals) {
+        setData(STORAGE_KEYS.proposals, [
+          {
+            id: 'p1',
+            driverId: 'd1',
+            companyId: 'c1',
+            status: 'pending_driver',
+            estEarning: 90
+          }
+        ]);
+      }
+
+      if (!getData(STORAGE_KEYS.session)) {
+        setSession({ ...defaultSession });
+      }
+    }
+
+    const tabs = document.querySelectorAll('.tab');
+    const pillButtons = document.querySelectorAll('.pill-nav button');
+
+    function showSection(id) {
+      tabs.forEach((tab) => {
+        tab.classList.toggle('active', tab.id === id);
+      });
+      pillButtons.forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.target === id.split('-')[0]);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openHome() {
+      showSection('home');
+    }
+
+    const loginTrigger = document.getElementById('login-trigger');
+    const registerTrigger = document.getElementById('register-trigger');
+    const authDropdown = document.getElementById('auth-dropdown');
+    const matchesPill = document.getElementById('matches-pill');
+
+    function toggleDropdown(show) {
+      authDropdown.style.display = show ? 'flex' : 'none';
+    }
+
+    loginTrigger.addEventListener('click', () => {
+      toggleDropdown(authDropdown.style.display !== 'flex');
+    });
+
+    registerTrigger.addEventListener('click', () => {
+      toggleDropdown(authDropdown.style.display !== 'flex');
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!authDropdown.contains(event.target) && !loginTrigger.contains(event.target) && !registerTrigger.contains(event.target)) {
+        toggleDropdown(false);
+      }
+    });
+
+    function updateTopbarForSession() {
+      const session = getSession();
+      const topbarRight = document.querySelector('.topbar-right');
+      const existingPrivate = topbarRight.querySelectorAll('.topbar-private');
+      existingPrivate.forEach((node) => node.remove());
+
+      matchesPill.disabled = true;
+      matchesPill.dataset.target = 'matches';
+
+      if (session.role === 'driver') {
+        const profileLink = createTopbarLink('Perfil', () => {
+          ensureAuth('driver');
+          showDriverView('profile');
+          showSection('driver-dashboard');
+        });
+        const proposalsLink = createTopbarLink('Propuestas', () => {
+          ensureAuth('driver');
+          showDriverView('proposals');
+          showSection('driver-dashboard');
+        });
+        const logoutLink = createTopbarLink('Cerrar sesión', handleLogout);
+        topbarRight.append(profileLink, proposalsLink, logoutLink);
+        matchesPill.disabled = false;
+        matchesPill.textContent = 'Emparejados';
+        matchesPill.onclick = () => {
+          ensureAuth('driver');
+          showDriverView('proposals');
+          showSection('driver-dashboard');
+        };
+      } else if (session.role === 'company') {
+        const campaignsLink = createTopbarLink('Campañas', () => {
+          ensureAuth('company');
+          showCompanyView('matches');
+          showSection('company-dashboard');
+        });
+        const profileLink = createTopbarLink('Perfil', () => {
+          ensureAuth('company');
+          showCompanyView('profile');
+          showSection('company-dashboard');
+        });
+        const logoutLink = createTopbarLink('Cerrar sesión', handleLogout);
+        topbarRight.append(campaignsLink, profileLink, logoutLink);
+        matchesPill.disabled = false;
+        matchesPill.textContent = 'Emparejados';
+        matchesPill.onclick = () => {
+          ensureAuth('company');
+          showCompanyView('matches');
+          showSection('company-dashboard');
+        };
+      } else {
+        matchesPill.textContent = 'Emparejados';
+        matchesPill.onclick = null;
+      }
+    }
+    function createTopbarLink(label, handler) {
+      const btn = document.createElement('button');
+      btn.textContent = label;
+      btn.className = 'btn btn-ghost topbar-private';
+      btn.addEventListener('click', handler);
+      return btn;
+    }
+
+    function ensureAuth(role) {
+      const session = getSession();
+      if (session.role !== role) {
+        alert('Por favor, inicia sesión para continuar.');
+        openHome();
+        return false;
+      }
+      return true;
+    }
+
+    function handleLogout() {
+      setSession({ ...defaultSession });
+      toggleDropdown(false);
+      updateTopbarForSession();
+      openHome();
+      updatePillState();
+    }
+
+    function updatePillState() {
+      const session = getSession();
+      document.querySelector('[data-target="driver-area"]').onclick = () => {
+        if (session.role === 'driver') {
+          showSection('driver-dashboard');
+        } else {
+          showSection('driver-login');
+        }
+      };
+      document.querySelector('[data-target="company-area"]').onclick = () => {
+        if (session.role === 'company') {
+          showSection('company-dashboard');
+        } else {
+          showSection('company-login');
+        }
+      };
+      document.querySelector('[data-target="home"]').onclick = () => showSection('home');
+    }
+
+    pillButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const session = getSession();
+        const target = btn.dataset.target;
+        if (target === 'matches') {
+          if (session.role === 'driver') {
+            showDriverView('proposals');
+            showSection('driver-dashboard');
+          } else if (session.role === 'company') {
+            showCompanyView('matches');
+            showSection('company-dashboard');
+          }
+          return;
+        }
+        if (target === 'driver-area') {
+          if (session.role === 'driver') {
+            showSection('driver-dashboard');
+          } else {
+            showSection('driver-login');
+          }
+          return;
+        }
+        if (target === 'company-area') {
+          if (session.role === 'company') {
+            showSection('company-dashboard');
+          } else {
+            showSection('company-login');
+          }
+          return;
+        }
+        showSection(target);
+      });
+    });
+
+    document.querySelectorAll('[data-action]').forEach((el) => {
+      el.addEventListener('click', (event) => {
+        const action = event.currentTarget.dataset.action;
+        toggleDropdown(false);
+        switch (action) {
+          case 'login-driver':
+            showSection('driver-login');
+            break;
+          case 'register-driver':
+            showSection('driver-register');
+            break;
+          case 'login-company':
+            showSection('company-login');
+            break;
+          case 'register-company':
+            showSection('company-register');
+            break;
+          case 'goto-driver':
+            showSection('driver-login');
+            break;
+          case 'goto-company':
+            showSection('company-login');
+            break;
+          case 'goto-matches': {
+            const session = getSession();
+            if (session.role === 'driver') {
+              showDriverView('proposals');
+              showSection('driver-dashboard');
+            } else if (session.role === 'company') {
+              showCompanyView('matches');
+              showSection('company-dashboard');
+            } else {
+              alert('Inicia sesión para ver emparejamientos.');
+            }
+            break;
+          }
+        }
+      });
+    });
+
+    const driverRegisterForm = document.getElementById('driver-register-form');
+    const driverRegisterError = document.getElementById('driver-register-error');
+    const driverLoginForm = document.getElementById('driver-login-form');
+    const driverLoginError = document.getElementById('driver-login-error');
+
+    driverRegisterForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const formData = new FormData(driverRegisterForm);
+      const newDriver = Object.fromEntries(formData.entries());
+      const requiredFields = ['name', 'dni', 'email', 'phone', 'username', 'password', 'city'];
+      const missing = requiredFields.some((field) => !newDriver[field]);
+      if (missing) {
+        driverRegisterError.textContent = 'Por favor, completa todos los campos obligatorios.';
+        driverRegisterError.style.display = 'block';
+        return;
+      }
+      const drivers = getData(STORAGE_KEYS.drivers) || [];
+      if (drivers.some((d) => d.username === newDriver.username)) {
+        driverRegisterError.textContent = 'El nombre de usuario ya está en uso.';
+        driverRegisterError.style.display = 'block';
+        return;
+      }
+      driverRegisterError.style.display = 'none';
+      const driver = {
+        id: `d${Date.now()}`,
+        username: newDriver.username,
+        password: newDriver.password,
+        name: newDriver.name,
+        dni: newDriver.dni,
+        email: newDriver.email,
+        phone: newDriver.phone,
+        vehicle: newDriver.vehicle,
+        city: newDriver.city,
+        zones: newDriver.zones.split(',').map((z) => z.trim()).filter(Boolean),
+        kmPerMonth: Number(newDriver.kmPerMonth),
+        wrapSize: newDriver.wrapSize,
+        categories: newDriver.categories.split(',').map((c) => c.trim()).filter(Boolean),
+        drivingSlot: newDriver.drivingSlot
+      };
+      drivers.push(driver);
+      setData(STORAGE_KEYS.drivers, drivers);
+      setSession({ role: 'driver', username: driver.username });
+      updateTopbarForSession();
+      updatePillState();
+      buildDriverProfileForm(driver);
+      renderDriverProposals();
+      driverRegisterForm.reset();
+      showSection('driver-dashboard');
+    });
+
+    driverLoginForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const formData = new FormData(driverLoginForm);
+      const username = formData.get('username');
+      const password = formData.get('password');
+      const drivers = getData(STORAGE_KEYS.drivers) || [];
+      const driver = drivers.find((d) => d.username === username && d.password === password);
+      if (!driver) {
+        driverLoginError.textContent = 'Credenciales incorrectas. Inténtalo de nuevo.';
+        driverLoginError.style.display = 'block';
+        return;
+      }
+      driverLoginError.style.display = 'none';
+      setSession({ role: 'driver', username: driver.username });
+      updateTopbarForSession();
+      updatePillState();
+      buildDriverProfileForm(driver);
+      renderDriverProposals();
+      driverLoginForm.reset();
+      showSection('driver-dashboard');
+    });
+
+    const companyRegisterForm = document.getElementById('company-register-form');
+    const companyRegisterError = document.getElementById('company-register-error');
+    const companyLoginForm = document.getElementById('company-login-form');
+    const companyLoginError = document.getElementById('company-login-error');
+    companyRegisterForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const formData = new FormData(companyRegisterForm);
+      const newCompany = Object.fromEntries(formData.entries());
+      const requiredFields = ['brand', 'companyName', 'nif', 'address', 'city', 'username', 'password'];
+      const missing = requiredFields.some((field) => !newCompany[field]);
+      if (missing) {
+        companyRegisterError.textContent = 'Completa los campos obligatorios.';
+        companyRegisterError.style.display = 'block';
+        return;
+      }
+      const companies = getData(STORAGE_KEYS.companies) || [];
+      if (companies.some((c) => c.username === newCompany.username)) {
+        companyRegisterError.textContent = 'El usuario indicado ya está registrado.';
+        companyRegisterError.style.display = 'block';
+        return;
+      }
+      companyRegisterError.style.display = 'none';
+      const company = {
+        id: `c${Date.now()}`,
+        username: newCompany.username,
+        password: newCompany.password,
+        brand: newCompany.brand,
+        companyName: newCompany.companyName,
+        nif: newCompany.nif,
+        address: newCompany.address,
+        city: newCompany.city,
+        zones: newCompany.zones.split(',').map((z) => z.trim()).filter(Boolean),
+        minKmPerMonth: Number(newCompany.minKmPerMonth || 0),
+        wrapSize: newCompany.wrapSize,
+        categories: newCompany.categories.split(',').map((c) => c.trim()).filter(Boolean),
+        targetSlot: newCompany.targetSlot,
+        budgetPerMonth: Number(newCompany.budgetPerMonth || 0),
+        campaignDurationMonths: Number(newCompany.campaignDurationMonths || 1),
+        contactEmail: newCompany.contactEmail,
+        contactPhone: newCompany.contactPhone
+      };
+      companies.push(company);
+      setData(STORAGE_KEYS.companies, companies);
+      setSession({ role: 'company', username: company.username });
+      updateTopbarForSession();
+      updatePillState();
+      buildCompanyProfileForm(company);
+      renderCompanyMatches();
+      companyRegisterForm.reset();
+      showSection('company-dashboard');
+    });
+
+    companyLoginForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const formData = new FormData(companyLoginForm);
+      const username = formData.get('username');
+      const password = formData.get('password');
+      const companies = getData(STORAGE_KEYS.companies) || [];
+      const company = companies.find((c) => c.username === username && c.password === password);
+      if (!company) {
+        companyLoginError.textContent = 'Credenciales incorrectas.';
+        companyLoginError.style.display = 'block';
+        return;
+      }
+      companyLoginError.style.display = 'none';
+      setSession({ role: 'company', username: company.username });
+      updateTopbarForSession();
+      updatePillState();
+      buildCompanyProfileForm(company);
+      renderCompanyMatches();
+      companyLoginForm.reset();
+      showSection('company-dashboard');
+    });
+
+    const driverProfileForm = document.getElementById('driver-profile-form');
+    const driverProfileSuccess = document.getElementById('driver-profile-success');
+
+    function buildDriverProfileForm(driver) {
+      if (!driver) return;
+      driverProfileForm.innerHTML = `
+        <label>Nombre completo
+          <input type="text" name="name" value="${driver.name || ''}" required />
+        </label>
+        <label>DNI
+          <input type="text" name="dni" value="${driver.dni || ''}" required />
+        </label>
+        <label>Email
+          <input type="email" name="email" value="${driver.email || ''}" required />
+        </label>
+        <label>Teléfono
+          <input type="tel" name="phone" value="${driver.phone || ''}" required />
+        </label>
+        <label>Ciudad
+          <input type="text" name="city" value="${driver.city || ''}" required />
+        </label>
+        <label>Zonas habituales
+          <input type="text" name="zones" value="${driver.zones ? driver.zones.join(', ') : ''}" required />
+        </label>
+        <label>Kilómetros aproximados por mes
+          <input type="number" name="kmPerMonth" value="${driver.kmPerMonth || 0}" required />
+        </label>
+        <label>Modelo de vehículo
+          <input type="text" name="vehicle" value="${driver.vehicle || ''}" required />
+        </label>
+        <label>Tamaño de vinilado aceptado
+          <select name="wrapSize" required>
+            <option value="pequeno" ${driver.wrapSize === 'pequeno' ? 'selected' : ''}>Pequeño</option>
+            <option value="medio" ${driver.wrapSize === 'medio' ? 'selected' : ''}>Medio</option>
+            <option value="completo" ${driver.wrapSize === 'completo' ? 'selected' : ''}>Completo</option>
+          </select>
+        </label>
+        <label>Categorías que aceptas
+          <input type="text" name="categories" value="${driver.categories ? driver.categories.join(', ') : ''}" required />
+        </label>
+        <label>Franja principal de conducción
+          <select name="drivingSlot" required>
+            <option value="manana" ${driver.drivingSlot === 'manana' ? 'selected' : ''}>Mañanas</option>
+            <option value="tarde" ${driver.drivingSlot === 'tarde' ? 'selected' : ''}>Tardes</option>
+            <option value="noche" ${driver.drivingSlot === 'noche' ? 'selected' : ''}>Noches</option>
+            <option value="any" ${driver.drivingSlot === 'any' ? 'selected' : ''}>Cualquiera</option>
+          </select>
+        </label>
+        <button type="submit" class="btn-primary">Guardar cambios</button>
+      `;
+    }
+
+    driverProfileForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const session = getSession();
+      if (session.role !== 'driver') return;
+      const formData = new FormData(driverProfileForm);
+      const updated = Object.fromEntries(formData.entries());
+      const drivers = getData(STORAGE_KEYS.drivers) || [];
+      const driverIndex = drivers.findIndex((d) => d.username === session.username);
+      if (driverIndex === -1) return;
+      drivers[driverIndex] = {
+        ...drivers[driverIndex],
+        name: updated.name,
+        dni: updated.dni,
+        email: updated.email,
+        phone: updated.phone,
+        city: updated.city,
+        zones: updated.zones.split(',').map((z) => z.trim()).filter(Boolean),
+        kmPerMonth: Number(updated.kmPerMonth || 0),
+        vehicle: updated.vehicle,
+        wrapSize: updated.wrapSize,
+        categories: updated.categories.split(',').map((c) => c.trim()).filter(Boolean),
+        drivingSlot: updated.drivingSlot
+      };
+      setData(STORAGE_KEYS.drivers, drivers);
+      driverProfileSuccess.style.display = 'block';
+      setTimeout(() => (driverProfileSuccess.style.display = 'none'), 3000);
+      renderCompanyMatches();
+    });
+
+    const driverProposalsList = document.getElementById('driver-proposals-list');
+
+    function renderDriverProposals() {
+      const session = getSession();
+      if (session.role !== 'driver') return;
+      const drivers = getData(STORAGE_KEYS.drivers) || [];
+      const driver = drivers.find((d) => d.username === session.username);
+      if (!driver) return;
+      const proposals = (getData(STORAGE_KEYS.proposals) || []).filter((p) => p.driverId === driver.id);
+      const companies = getData(STORAGE_KEYS.companies) || [];
+      driverProposalsList.innerHTML = '';
+      if (!proposals.length) {
+        driverProposalsList.innerHTML = '<div class="empty-state">Aún no tienes propuestas activas. Mantén tu perfil actualizado.</div>';
+        return;
+      }
+      proposals.forEach((proposal) => {
+        const company = companies.find((c) => c.id === proposal.companyId);
+        const statusClass = proposal.status === 'accepted' ? 'accepted' : proposal.status === 'rejected' ? 'rejected' : 'pending';
+        const statusText = {
+          pending_driver: 'Pendiente de tu respuesta',
+          pending_company: 'Pendiente de la empresa',
+          accepted: 'Aceptada',
+          rejected: 'Rechazada'
+        }[proposal.status] || proposal.status;
+        const card = document.createElement('article');
+        card.className = 'proposal-card';
+        card.innerHTML = `
+          <header>
+            <div>
+              <h3>${company ? company.brand : 'Empresa'}</h3>
+              <small>${company ? company.city : ''} · Zonas: ${company ? company.zones.join(', ') : ''}</small>
+            </div>
+            <span class="status ${statusClass}">${statusText}</span>
+          </header>
+          <p><strong>Presupuesto mensual:</strong> €${company ? company.budgetPerMonth : '—'} · <strong>Estimación de ingreso:</strong> €${proposal.estEarning}</p>
+          <p><strong>Categorías:</strong> ${company ? company.categories.join(', ') : '—'} · <strong>Duración estimada:</strong> ${company ? company.campaignDurationMonths : '—'} meses</p>
+        `;
+        if (proposal.status === 'pending_driver') {
+          const actions = document.createElement('div');
+          actions.className = 'action-group';
+          const acceptBtn = document.createElement('button');
+          acceptBtn.className = 'accept';
+          acceptBtn.textContent = 'Aceptar';
+          acceptBtn.addEventListener('click', () => updateProposalStatus(proposal.id, 'accepted'));
+          const rejectBtn = document.createElement('button');
+          rejectBtn.className = 'reject';
+          rejectBtn.textContent = 'Rechazar';
+          rejectBtn.addEventListener('click', () => updateProposalStatus(proposal.id, 'rejected'));
+          actions.append(acceptBtn, rejectBtn);
+          card.append(actions);
+        }
+        driverProposalsList.append(card);
+      });
+    }
+    function updateProposalStatus(id, status) {
+      const proposals = getData(STORAGE_KEYS.proposals) || [];
+      const index = proposals.findIndex((p) => p.id === id);
+      if (index === -1) return;
+      proposals[index].status = status;
+      setData(STORAGE_KEYS.proposals, proposals);
+      renderDriverProposals();
+      renderCompanyMatches();
+    }
+
+    function showDriverView(view) {
+      document.querySelectorAll('#driver-dashboard .dashboard-view').forEach((section) => {
+        section.classList.toggle('hidden', !section.id.includes(view));
+      });
+      document.querySelectorAll('[data-driver-view]').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.driverView === view);
+      });
+      if (view === 'proposals') {
+        renderDriverProposals();
+      }
+    }
+
+    document.querySelectorAll('[data-driver-view]').forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+        const view = event.currentTarget.dataset.driverView;
+        showDriverView(view);
+      });
+    });
+
+    const companyProfileForm = document.getElementById('company-profile-form');
+    const companyProfileSuccess = document.getElementById('company-profile-success');
+
+    function buildCompanyProfileForm(company) {
+      if (!company) return;
+      companyProfileForm.innerHTML = `
+        <label>Nombre comercial / marca
+          <input type="text" name="brand" value="${company.brand || ''}" required />
+        </label>
+        <label>Razón social
+          <input type="text" name="companyName" value="${company.companyName || ''}" required />
+        </label>
+        <label>NIF
+          <input type="text" name="nif" value="${company.nif || ''}" required />
+        </label>
+        <label>Dirección
+          <input type="text" name="address" value="${company.address || ''}" required />
+        </label>
+        <label>Ciudad
+          <input type="text" name="city" value="${company.city || ''}" required />
+        </label>
+        <label>Zonas objetivo
+          <input type="text" name="zones" value="${company.zones ? company.zones.join(', ') : ''}" required />
+        </label>
+        <label>Kilómetros mínimos al mes
+          <input type="number" name="minKmPerMonth" value="${company.minKmPerMonth || 0}" required />
+        </label>
+        <label>Tamaño de vinilado
+          <select name="wrapSize" required>
+            <option value="pequeno" ${company.wrapSize === 'pequeno' ? 'selected' : ''}>Pequeño</option>
+            <option value="medio" ${company.wrapSize === 'medio' ? 'selected' : ''}>Medio</option>
+            <option value="completo" ${company.wrapSize === 'completo' ? 'selected' : ''}>Completo</option>
+          </select>
+        </label>
+        <label>Categorías de campaña
+          <input type="text" name="categories" value="${company.categories ? company.categories.join(', ') : ''}" required />
+        </label>
+        <label>Franja horaria objetivo
+          <select name="targetSlot" required>
+            <option value="manana" ${company.targetSlot === 'manana' ? 'selected' : ''}>Mañanas</option>
+            <option value="tarde" ${company.targetSlot === 'tarde' ? 'selected' : ''}>Tardes</option>
+            <option value="noche" ${company.targetSlot === 'noche' ? 'selected' : ''}>Noches</option>
+            <option value="any" ${company.targetSlot === 'any' ? 'selected' : ''}>Cualquiera</option>
+          </select>
+        </label>
+        <label>Presupuesto mensual (€)
+          <input type="number" name="budgetPerMonth" value="${company.budgetPerMonth || 0}" required />
+        </label>
+        <label>Duración de campaña (meses)
+          <select name="campaignDurationMonths" required>
+            <option value="1" ${company.campaignDurationMonths === 1 ? 'selected' : ''}>1 mes</option>
+            <option value="3" ${company.campaignDurationMonths === 3 ? 'selected' : ''}>3 meses</option>
+            <option value="6" ${company.campaignDurationMonths === 6 ? 'selected' : ''}>6 meses</option>
+          </select>
+        </label>
+        <label>Teléfono de contacto
+          <input type="tel" name="contactPhone" value="${company.contactPhone || ''}" required />
+        </label>
+        <label>Email de contacto
+          <input type="email" name="contactEmail" value="${company.contactEmail || ''}" required />
+        </label>
+        <button type="submit" class="btn-primary">Guardar cambios</button>
+      `;
+    }
+
+    companyProfileForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const session = getSession();
+      if (session.role !== 'company') return;
+      const formData = new FormData(companyProfileForm);
+      const updated = Object.fromEntries(formData.entries());
+      const companies = getData(STORAGE_KEYS.companies) || [];
+      const companyIndex = companies.findIndex((c) => c.username === session.username);
+      if (companyIndex === -1) return;
+      companies[companyIndex] = {
+        ...companies[companyIndex],
+        brand: updated.brand,
+        companyName: updated.companyName,
+        nif: updated.nif,
+        address: updated.address,
+        city: updated.city,
+        zones: updated.zones.split(',').map((z) => z.trim()).filter(Boolean),
+        minKmPerMonth: Number(updated.minKmPerMonth || 0),
+        wrapSize: updated.wrapSize,
+        categories: updated.categories.split(',').map((c) => c.trim()).filter(Boolean),
+        targetSlot: updated.targetSlot,
+        budgetPerMonth: Number(updated.budgetPerMonth || 0),
+        campaignDurationMonths: Number(updated.campaignDurationMonths || 1),
+        contactPhone: updated.contactPhone,
+        contactEmail: updated.contactEmail
+      };
+      setData(STORAGE_KEYS.companies, companies);
+      companyProfileSuccess.style.display = 'block';
+      setTimeout(() => (companyProfileSuccess.style.display = 'none'), 3000);
+      renderCompanyMatches();
+    });
+
+    const companyMatchesList = document.getElementById('company-matches-list');
+
+    function renderCompanyMatches() {
+      const session = getSession();
+      if (session.role !== 'company') return;
+      const companies = getData(STORAGE_KEYS.companies) || [];
+      const drivers = getData(STORAGE_KEYS.drivers) || [];
+      const proposals = getData(STORAGE_KEYS.proposals) || [];
+      const company = companies.find((c) => c.username === session.username);
+      if (!company) return;
+
+      companyMatchesList.innerHTML = '';
+
+      const matchedDrivers = drivers.filter((driver) => matchesCompany(driver, company));
+      if (!matchedDrivers.length) {
+        companyMatchesList.innerHTML = '<div class="empty-state">No encontramos conductores compatibles todavía. Ajusta tus filtros o vuelve más tarde.</div>';
+        return;
+      }
+
+      matchedDrivers.forEach((driver) => {
+        const existingProposal = proposals.find((p) => p.driverId === driver.id && p.companyId === company.id);
+        const status = existingProposal ? existingProposal.status : null;
+        const statusLabel = existingProposal
+          ? {
+              pending_driver: 'Pendiente de respuesta del conductor',
+              pending_company: 'Pendiente de confirmación',
+              accepted: 'Aceptada',
+              rejected: 'Rechazada'
+            }[status]
+          : 'Nuevo match disponible';
+        const statusClass = status === 'accepted' ? 'accepted' : status === 'rejected' ? 'rejected' : 'pending';
+        const estEarning = calculateEstimatedEarning(driver, company);
+
+        const card = document.createElement('article');
+        card.className = 'match-card';
+        card.innerHTML = `
+          <header>
+            <div>
+              <h3>${driver.name}</h3>
+              <small>${driver.city} · ${driver.vehicle}</small>
+            </div>
+            <span class="status ${statusClass}">${statusLabel}</span>
+          </header>
+          <p><strong>Zonas:</strong> ${driver.zones.join(', ')} · <strong>Kilómetros/mes:</strong> ${driver.kmPerMonth}</p>
+          <p><strong>Categorías:</strong> ${driver.categories.join(', ')} · <strong>Tamaño de vinilo:</strong> ${driver.wrapSize}</p>
+          <p><strong>Estimación ingreso conductor:</strong> €${estEarning}</p>
+        `;
+
+        const actions = document.createElement('div');
+        actions.className = 'action-group';
+
+        const rejectBtn = document.createElement('button');
+        rejectBtn.className = 'reject';
+        rejectBtn.textContent = 'Rechazar';
+        rejectBtn.addEventListener('click', () => {
+          upsertProposal({
+            id: existingProposal ? existingProposal.id : `p${Date.now()}`,
+            driverId: driver.id,
+            companyId: company.id,
+            status: 'rejected',
+            estEarning
+          });
+        });
+
+        const acceptBtn = document.createElement('button');
+        acceptBtn.className = 'accept';
+        acceptBtn.textContent = status === 'pending_driver' || status === 'accepted' ? 'Mantener' : 'Aceptar';
+        acceptBtn.addEventListener('click', () => {
+          upsertProposal({
+            id: existingProposal ? existingProposal.id : `p${Date.now()}`,
+            driverId: driver.id,
+            companyId: company.id,
+            status: 'pending_driver',
+            estEarning
+          });
+        });
+
+        actions.append(acceptBtn, rejectBtn);
+        if (status === 'accepted') {
+          acceptBtn.disabled = true;
+          rejectBtn.disabled = true;
+        }
+        card.append(actions);
+        companyMatchesList.append(card);
+      });
+    }
+    function upsertProposal(proposal) {
+      const proposals = getData(STORAGE_KEYS.proposals) || [];
+      const index = proposals.findIndex((p) => p.id === proposal.id);
+      if (index === -1) {
+        proposals.push(proposal);
+      } else {
+        proposals[index] = { ...proposals[index], ...proposal };
+      }
+      setData(STORAGE_KEYS.proposals, proposals);
+      renderDriverProposals();
+      renderCompanyMatches();
+    }
+
+    function normalize(list) {
+      return (list || []).map((item) => item.toLowerCase());
+    }
+
+    function matchesCompany(driver, company) {
+      if (!driver || !company) return false;
+      if (driver.city.toLowerCase() !== company.city.toLowerCase()) return false;
+
+      const driverZones = normalize(driver.zones);
+      const companyZones = normalize(company.zones);
+      const zonesMatch = driverZones.some((zone) => companyZones.includes(zone));
+      if (!zonesMatch) return false;
+
+      const driverCategories = normalize(driver.categories);
+      const companyCategories = normalize(company.categories);
+      const categoryMatch = driverCategories.some((category) => companyCategories.includes(category));
+      if (!categoryMatch) return false;
+
+      const wrapMatch = company.wrapSize === 'completo'
+        ? driver.wrapSize === 'completo'
+        : company.wrapSize === 'medio'
+          ? driver.wrapSize === 'medio' || driver.wrapSize === 'completo'
+          : true;
+      if (!wrapMatch) return false;
+
+      if (driver.kmPerMonth < (company.minKmPerMonth || 0)) return false;
+
+      if (company.targetSlot !== 'any' && driver.drivingSlot !== 'any' && company.targetSlot !== driver.drivingSlot) {
+        return false;
+      }
+
+      return true;
+    }
+
+    function calculateEstimatedEarning(driver, company) {
+      const base = Math.min(driver.kmPerMonth * 0.08, company.budgetPerMonth * 0.7);
+      return Math.min(Math.max(Math.round(base), 20), 150);
+    }
+
+    function showCompanyView(view) {
+      document.querySelectorAll('#company-dashboard .dashboard-view').forEach((section) => {
+        section.classList.toggle('hidden', !section.id.includes(view));
+      });
+      document.querySelectorAll('[data-company-view]').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.companyView === view);
+      });
+      if (view === 'matches') {
+        renderCompanyMatches();
+      }
+    }
+
+    document.querySelectorAll('[data-company-view]').forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+        const view = event.currentTarget.dataset.companyView;
+        showCompanyView(view);
+      });
+    });
+
+    function restoreSession() {
+      const session = getSession();
+      if (session.role === 'driver') {
+        const drivers = getData(STORAGE_KEYS.drivers) || [];
+        const driver = drivers.find((d) => d.username === session.username);
+        if (driver) {
+          buildDriverProfileForm(driver);
+          renderDriverProposals();
+          showSection('driver-dashboard');
+        }
+      } else if (session.role === 'company') {
+        const companies = getData(STORAGE_KEYS.companies) || [];
+        const company = companies.find((c) => c.username === session.username);
+        if (company) {
+          buildCompanyProfileForm(company);
+          renderCompanyMatches();
+          showSection('company-dashboard');
+        }
+      } else {
+        showSection('home');
+      }
+    }
+
+    ensureStorageSeed();
+    updateTopbarForSession();
+    updatePillState();
+    restoreSession();
+  </script>
+</body>
+</html>
