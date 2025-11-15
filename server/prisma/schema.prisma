@@ -1,0 +1,220 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  role          UserRole
+  username      String    @unique
+  passwordHash  String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  driver        Driver?
+  company       Company?
+  workshop      Workshop?
+  messagesSent  Message[] @relation("MessagesSent")
+  messagesRecv  Message[] @relation("MessagesRecv")
+  events        EventLog[]
+  emailTokens   EmailVerificationToken[]
+}
+
+enum UserRole {
+  driver
+  company
+  workshop
+  admin
+}
+
+model Driver {
+  id                Int      @id
+  user              User     @relation(fields: [id], references: [id])
+  name              String
+  residenceCity     String
+  contactPhone      String
+  dni               String   @unique
+  circulationCity   String
+  circulationZones  Json
+  kmPerMonthRange   String
+  kmPerMonth        Int
+  vehicleModel      String
+  wrapSize          WrapSize
+  categories        Json
+  drivingSlot       DrivingSlot
+  paymentMethod     String
+  paymentDetails    Json
+  stripeCustomerId  String?  @db.VarChar(191)
+  stripeAccountId   String?  @db.VarChar(191)
+  proposals         Proposal[]
+  payments          Payment[]
+}
+
+model Company {
+  id                   Int      @id
+  user                 User     @relation(fields: [id], references: [id])
+  brand                String
+  companyName          String
+  nif                  String
+  address              String
+  city                 String
+  contactPhone         String
+  circulationCity      String
+  targetZones          Json
+  desiredKmRange       String
+  minKmPerMonth        Int
+  wrapSize             WrapSize
+  categories           Json
+  targetSlot           DrivingSlot
+  budgetPerMonth       Float
+  campaignDurationMonths Int
+  stripeCustomerId     String?  @db.VarChar(191)
+  vinylDesigns         VinylDesign[]
+  proposals            Proposal[]
+  payments             Payment[]
+}
+
+model Workshop {
+  id               Int      @id
+  user             User     @relation(fields: [id], references: [id])
+  name             String
+  location         String
+  scheduleDescription String
+  contactPhone     String
+  slots            WorkshopSlot[]
+  proposals        Proposal[] @relation("ProposalWorkshop")
+}
+
+model VinylDesign {
+  id         Int      @id @default(autoincrement())
+  company    Company  @relation(fields: [companyId], references: [id])
+  companyId  Int
+  name       String
+  fileUrl    String
+  createdAt  DateTime @default(now())
+  proposals  Proposal[]
+}
+
+model WorkshopSlot {
+  id          Int        @id @default(autoincrement())
+  workshop    Workshop   @relation(fields: [workshopId], references: [id])
+  workshopId  Int
+  time        DateTime
+  taken       Boolean    @default(false)
+  proposal    Proposal?  @relation(fields: [proposalId], references: [id])
+  proposalId  Int?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+enum ProposalStatus {
+  pending_driver
+  rejected
+  accepted
+  cancelled
+}
+
+model Proposal {
+  id                 Int            @id @default(autoincrement())
+  driver             Driver         @relation(fields: [driverId], references: [id])
+  driverId           Int
+  company            Company        @relation(fields: [companyId], references: [id])
+  companyId          Int
+  status             ProposalStatus @default(pending_driver)
+  matchScore         Int
+  estEarning         Float
+  selectedVinyl      VinylDesign?   @relation(fields: [selectedVinylId], references: [id])
+  selectedVinylId    Int?
+  selectedWorkshop   Workshop?      @relation("ProposalWorkshop", fields: [selectedWorkshopId], references: [id])
+  selectedWorkshopId Int?
+  selectedSlot       WorkshopSlot?  @relation(fields: [selectedSlotId], references: [id])
+  selectedSlotId     Int?
+  messages           Message[]
+  payment            Payment?
+  events             EventLog[]
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  @@unique([driverId, companyId], name: "driverId_companyId")
+}
+
+model Payment {
+  id                     Int        @id @default(autoincrement())
+  proposal               Proposal   @relation(fields: [proposalId], references: [id])
+  proposalId             Int        @unique
+  company                Company    @relation(fields: [companyId], references: [id])
+  companyId              Int
+  driver                 Driver     @relation(fields: [driverId], references: [id])
+  driverId               Int
+  stripePaymentIntentId  String     @unique
+  amountGross            Float
+  platformFee            Float
+  driverNet              Float
+  currency               String
+  status                 PaymentStatus
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
+  events                 EventLog[]
+}
+
+enum PaymentStatus {
+  pending
+  succeeded
+  failed
+  refunded
+}
+
+model Message {
+  id          Int      @id @default(autoincrement())
+  proposal    Proposal @relation(fields: [proposalId], references: [id])
+  proposalId  Int
+  fromUser    User     @relation("MessagesSent", fields: [fromUserId], references: [id])
+  fromUserId  Int
+  toUser      User     @relation("MessagesRecv", fields: [toUserId], references: [id])
+  toUserId    Int
+  content     String
+  createdAt   DateTime @default(now())
+}
+
+model EventLog {
+  id             Int       @id @default(autoincrement())
+  type           String
+  user           User?     @relation(fields: [userId], references: [id])
+  userId         Int?
+  proposal       Proposal? @relation(fields: [proposalId], references: [id])
+  proposalId     Int?
+  payment        Payment?  @relation(fields: [paymentId], references: [id])
+  paymentId      Int?
+  workshopSlot   WorkshopSlot? @relation(fields: [workshopSlotId], references: [id])
+  workshopSlotId Int?
+  metadata       Json
+  createdAt      DateTime  @default(now())
+}
+
+model EmailVerificationToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+enum WrapSize {
+  small
+  medium
+  full
+}
+
+enum DrivingSlot {
+  morning
+  afternoon
+  evening
+  any
+}
