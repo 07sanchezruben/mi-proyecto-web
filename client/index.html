@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PubliCar – Plataforma de vinilado inteligente</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo" data-nav="home">PubliCar</div>
+    <nav class="topbar-actions">
+      <button class="btn ghost" data-open="login">Iniciar sesión</button>
+      <button class="btn" data-open="register">Registrarse</button>
+      <div class="user-info hidden" id="user-info">
+        <span id="user-role"></span>
+        <button class="btn ghost" id="logout-btn">Cerrar sesión</button>
+      </div>
+    </nav>
+  </header>
+
+  <main id="app">
+    <section id="home" class="view active">
+      <div class="hero">
+        <div class="hero-copy">
+          <h1>PubliCar conecta marcas con conductores reales</h1>
+          <p>Gestiona campañas de publicidad exterior sobre coches particulares y controla propuestas, pagos y talleres desde un panel unificado.</p>
+          <div class="cta-cards">
+            <article class="card">
+              <h2>¿Eres conductor?</h2>
+              <p>Completa tu perfil, recibe propuestas y gana dinero conduciendo como siempre.</p>
+              <div class="actions">
+                <button class="btn" data-open="driver-register">Registrarse</button>
+                <button class="btn ghost" data-open="login" data-role="driver">Iniciar sesión</button>
+              </div>
+            </article>
+            <article class="card">
+              <h2>¿Representas a una empresa?</h2>
+              <p>Diseña campañas, sube vinilos y gestiona el emparejamiento con conductores validados.</p>
+              <div class="actions">
+                <button class="btn" data-open="company-register">Registrarse</button>
+                <button class="btn ghost" data-open="login" data-role="company">Iniciar sesión</button>
+              </div>
+            </article>
+          </div>
+        </div>
+        <div class="hero-illustration">
+          <div class="city"></div>
+          <div class="car"></div>
+        </div>
+      </div>
+      <section class="feature-grid">
+        <article class="card small" data-nav="driver-dashboard">
+          <h3>Conductores</h3>
+          <p>Gestiona tu perfil, propuestas y agenda el vinilado con talleres certificados.</p>
+          <button class="btn ghost">Ver detalles</button>
+        </article>
+        <article class="card small" data-nav="company-dashboard">
+          <h3>Empresas</h3>
+          <p>Algoritmo de matching inteligente, control de diseños y pagos seguros.</p>
+          <button class="btn ghost">Ver detalles</button>
+        </article>
+        <article class="card small" data-nav="matching">
+          <h3>Emparejamientos</h3>
+          <p>Visualiza matchScore, propuestas en curso y el estado del pago.</p>
+          <button class="btn ghost">Ver detalles</button>
+        </article>
+      </section>
+    </section>
+
+    <section id="login" class="view">
+      <div class="auth-card card">
+        <h2>Iniciar sesión</h2>
+        <form id="login-form">
+          <label>Usuario<input type="text" name="username" required /></label>
+          <label>Contraseña<input type="password" name="password" required /></label>
+          <button class="btn" type="submit">Entrar</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="register" class="view">
+      <div class="auth-grid">
+        <div class="card">
+          <h2>Registro conductor</h2>
+          <form class="register-form" data-role="driver">
+            <div class="form-columns">
+              <div>
+                <label>Usuario<input name="username" required /></label>
+                <label>Email<input name="email" type="email" required /></label>
+                <label>Contraseña<input name="password" type="password" required /></label>
+                <label>Nombre completo<input name="name" required /></label>
+                <label>DNI<input name="dni" required placeholder="12345678Z" /></label>
+                <span class="hint">El DNI se valida automáticamente.</span>
+              </div>
+              <div>
+                <label>Ciudad residencia<input name="residenceCity" required /></label>
+                <label>Teléfono<input name="contactPhone" required /></label>
+                <label>Ciudad circulación habitual<input name="circulationCity" required /></label>
+                <label>Zonas de circulación<input name="circulationZones" placeholder="centro,norte" /></label>
+                <label>Kilómetros/mes<input name="kmPerMonth" type="number" min="0" required /></label>
+                <label>Rango km/mes<input name="kmPerMonthRange" placeholder="1000-1500" /></label>
+              </div>
+              <div>
+                <label>Modelo vehículo<input name="vehicleModel" required /></label>
+                <label>Tamaño vinilado
+                  <select name="wrapSize">
+                    <option value="small">Pequeño</option>
+                    <option value="medium" selected>Medio</option>
+                    <option value="full">Completo</option>
+                  </select>
+                </label>
+                <label>Temáticas aceptadas<input name="categories" placeholder="tecnología,finanzas" /></label>
+                <label>Franja horaria
+                  <select name="drivingSlot">
+                    <option value="morning">Mañana</option>
+                    <option value="afternoon">Tarde</option>
+                    <option value="evening">Noche</option>
+                    <option value="any">Indistinto</option>
+                  </select>
+                </label>
+                <label>Método cobro
+                  <select name="paymentMethod">
+                    <option value="paypal">PayPal</option>
+                    <option value="transferencia" selected>Transferencia</option>
+                    <option value="bizum">Bizum</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </label>
+                <label>Detalles método<input name="paymentDetails" placeholder="iban=ES..." /></label>
+              </div>
+            </div>
+            <button class="btn" type="submit">Crear cuenta conductor</button>
+          </form>
+        </div>
+        <div class="card">
+          <h2>Registro empresa</h2>
+          <form class="register-form" data-role="company">
+            <div class="form-columns">
+              <div>
+                <label>Usuario<input name="username" required /></label>
+                <label>Email<input name="email" type="email" required /></label>
+                <label>Contraseña<input name="password" type="password" required /></label>
+                <label>Marca comercial<input name="brand" required /></label>
+                <label>Razón social<input name="companyName" required /></label>
+                <label>NIF<input name="nif" required /></label>
+              </div>
+              <div>
+                <label>Dirección<input name="address" required /></label>
+                <label>Ciudad<input name="city" required /></label>
+                <label>Teléfono<input name="contactPhone" required /></label>
+                <label>Ciudad campaña<input name="circulationCity" required /></label>
+                <label>Zonas objetivo<input name="targetZones" placeholder="centro,norte" /></label>
+                <label>Rango km deseado<input name="desiredKmRange" required /></label>
+              </div>
+              <div>
+                <label>Kilómetros mínimos<input name="minKmPerMonth" type="number" required /></label>
+                <label>Tamaño vinilo
+                  <select name="wrapSize">
+                    <option value="small">Pequeño</option>
+                    <option value="medium" selected>Medio</option>
+                    <option value="full">Completo</option>
+                  </select>
+                </label>
+                <label>Categorías<input name="categories" placeholder="tecnología" /></label>
+                <label>Franja objetivo
+                  <select name="targetSlot">
+                    <option value="morning">Mañana</option>
+                    <option value="afternoon">Tarde</option>
+                    <option value="evening">Noche</option>
+                    <option value="any">Indistinto</option>
+                  </select>
+                </label>
+                <label>Presupuesto mensual (€)<input name="budgetPerMonth" type="number" required /></label>
+                <label>Duración campaña (meses)<input name="campaignDurationMonths" type="number" required /></label>
+              </div>
+            </div>
+            <button class="btn" type="submit">Crear cuenta empresa</button>
+          </form>
+        </div>
+        <div class="card">
+          <h2>Registro taller</h2>
+          <form class="register-form" data-role="workshop">
+            <label>Usuario<input name="username" required /></label>
+            <label>Email<input name="email" type="email" required /></label>
+            <label>Contraseña<input name="password" type="password" required /></label>
+            <label>Nombre taller<input name="name" required /></label>
+            <label>Ubicación<input name="location" required /></label>
+            <label>Horario<input name="scheduleDescription" required /></label>
+            <label>Teléfono<input name="contactPhone" required /></label>
+            <button class="btn" type="submit">Crear cuenta taller</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section id="driver-dashboard" class="view">
+      <div class="dashboard">
+        <aside class="sidebar">
+          <button class="sidebar-item active" data-tab="driver-home">Dashboard</button>
+          <button class="sidebar-item" data-tab="driver-profile">Perfil</button>
+          <button class="sidebar-item" data-tab="driver-proposals">Propuestas</button>
+          <button class="sidebar-item" data-tab="driver-wrap">Opciones de vinilado</button>
+        </aside>
+        <div class="dashboard-content">
+          <div id="driver-home" class="tab active">
+            <h2>Resumen conductor</h2>
+            <p id="driver-summary"></p>
+          </div>
+          <div id="driver-profile" class="tab">
+            <h2>Perfil</h2>
+            <form id="driver-profile-form"></form>
+          </div>
+          <div id="driver-proposals" class="tab">
+            <h2>Propuestas recibidas</h2>
+            <p class="notice">Recuerda: el vinilado no lo pagarás tú.</p>
+            <div id="driver-proposals-list" class="list-grid"></div>
+          </div>
+          <div id="driver-wrap" class="tab">
+            <h2>Agenda tu vinilado</h2>
+            <div id="driver-wrap-list" class="list-grid"></div>
+            <div id="driver-wrap-detail" class="wrap-detail hidden"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="company-dashboard" class="view">
+      <div class="dashboard">
+        <aside class="sidebar">
+          <button class="sidebar-item active" data-tab="company-matches">Campañas / Emparejamientos</button>
+          <button class="sidebar-item" data-tab="company-profile">Perfil</button>
+          <button class="sidebar-item" data-tab="company-designs">Diseños de vinilo</button>
+        </aside>
+        <div class="dashboard-content">
+          <div id="company-matches" class="tab active">
+            <h2>Conductores recomendados</h2>
+            <div id="company-matches-list" class="list-grid"></div>
+          </div>
+          <div id="company-profile" class="tab">
+            <h2>Perfil de empresa</h2>
+            <form id="company-profile-form"></form>
+          </div>
+          <div id="company-designs" class="tab">
+            <h2>Diseños de vinilo</h2>
+            <form id="design-form" class="inline-form">
+              <input name="name" placeholder="Nombre del diseño" required />
+              <textarea name="dataUrl" placeholder="Pega aquí una imagen en base64 o URL" required></textarea>
+              <button class="btn" type="submit">Añadir diseño</button>
+            </form>
+            <div id="designs-gallery" class="list-grid"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="workshop-dashboard" class="view">
+      <div class="dashboard">
+        <aside class="sidebar">
+          <button class="sidebar-item active" data-tab="workshop-slots">Disponibilidad</button>
+        </aside>
+        <div class="dashboard-content">
+          <div id="workshop-slots" class="tab active">
+            <h2>Gestión de slots</h2>
+            <form id="workshop-slot-form" class="inline-form">
+              <input type="datetime-local" name="time" required />
+              <button class="btn" type="submit">Crear slot</button>
+            </form>
+            <div id="workshop-slots-list" class="list-grid"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin-dashboard" class="view">
+      <div class="dashboard">
+        <aside class="sidebar">
+          <button class="sidebar-item active" data-tab="admin-summary">Resumen</button>
+          <button class="sidebar-item" data-tab="admin-payments">Pagos</button>
+          <button class="sidebar-item" data-tab="admin-events">Eventos</button>
+          <button class="sidebar-item" data-tab="admin-users">Usuarios</button>
+        </aside>
+        <div class="dashboard-content">
+          <div id="admin-summary" class="tab active">
+            <h2>Métricas clave</h2>
+            <div id="admin-summary-content"></div>
+          </div>
+          <div id="admin-payments" class="tab">
+            <h2>Pagos</h2>
+            <table id="admin-payments-table"></table>
+          </div>
+          <div id="admin-events" class="tab">
+            <h2>Eventos recientes</h2>
+            <ul id="admin-events-list"></ul>
+          </div>
+          <div id="admin-users" class="tab">
+            <h2>Usuarios</h2>
+            <table id="admin-users-table"></table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; <span id="year"></span> PubliCar. Plataforma de gestión de campañas en vehículos particulares.</p>
+  </footer>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-4rDoHnTip6PD58Ll35H5TADaBrZEcD3xKhsR4HIX66vepQP9en5ZaY1f3T5iAG2D" crossorigin="anonymous"></script>
+  <script src="app.js" type="module"></script>
+</body>
+</html>
